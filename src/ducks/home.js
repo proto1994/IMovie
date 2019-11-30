@@ -2,41 +2,47 @@ import { take, fork, all, put, call } from 'redux-saga/effects';
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { takeEvery, delay } from 'redux-saga';
 import { getRecommendMovieTypeListFetch } from '../services/home';
-export const initState = {
-  count: 3,
-};
-export const getRecommendMovieTypeListAction = createAction('home/getRecommendMovieTypeList');
-const home = createSlice({
+
+const { actions, reducer } = createSlice({
   name: 'home',
   initialState: {
     recommendMovieTypeList: [],
+    loading: false,
   },
   reducers: {
-    updateRecommendMovieTypeList(state, payload) {
-      console.log(payload, state)
+    updateRecommendMovieTypeList(state, { payload }) {
+      console.log(payload);
       state.recommendMovieTypeList = payload.recommendMovieTypeList;
+    },
+    updateLoading(state, { payload }) {
+      state.loading = payload;
     },
   },
 });
 
-console.log(home, 'home')
-export default home.reducer;
-
+export const getRecommendMovieTypeListAction = createAction('home/getRecommendMovieTypeList');
 function* watchGetRecommendMovieTypeList() {
   while (true) {
     const action = yield take(getRecommendMovieTypeListAction.toString());
-    console.log(action)
+    console.log(action);
     yield call(getRecommendMovieTypeList);
   }
 }
 function* getRecommendMovieTypeList() {
   try {
+    yield put(actions.updateLoading(true));
     const result = yield call(getRecommendMovieTypeListFetch);
-    console.log(result);
-    yield put(home.actions.updateRecommendMovieTypeList({
-      recommendMovieTypeList: result.data
-    }));
-  } catch(e) {
+    // console.log(result);
+    yield all([
+      put(actions.updateLoading(false)),
+      put(
+        actions.updateRecommendMovieTypeList({
+          recommendMovieTypeList: result,
+        }),
+      ),
+    ]);
+  } catch (e) {
+    yield put(actions.updateLoading(false));
     console.log(e);
   }
 }
@@ -44,3 +50,4 @@ function* getRecommendMovieTypeList() {
 export function* saga() {
   yield all([fork(watchGetRecommendMovieTypeList)]);
 }
+export default reducer;
