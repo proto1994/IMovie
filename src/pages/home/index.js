@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useState} from 'react';
+import { useHistory } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import CameraIcon from '@material-ui/icons/PhotoCamera';
@@ -12,8 +13,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import Link from '@material-ui/core/Link';
+import SearchIcon from '@material-ui/icons/Search';
+import IconButton from '@material-ui/core/IconButton';
+
 import TextField from '@material-ui/core/TextField';
+import MaterialLink from '@material-ui/core/Link';
 
 import LocalMovies from '@material-ui/icons/LocalMovies';
 
@@ -21,9 +25,9 @@ function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        HF.SHI
-      </Link>{' '}
+      <MaterialLink color="inherit" href="https://material-ui.com/">
+        HF.SHI & YT.YU
+      </MaterialLink>{' '}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -40,6 +44,10 @@ const useStyles = makeStyles(theme => ({
   },
   heroButtons: {
     marginTop: theme.spacing(4),
+  },
+  searchIconButton: {
+    position: 'absolute',
+    right: 0,
   },
   cardGrid: {
     paddingTop: theme.spacing(8),
@@ -88,6 +96,14 @@ const cards = [
 export default function Album() {
   const classes = useStyles();
 
+  const history = useHistory();
+
+  const [keywords, setKeywords] = useState('');
+
+  function gotoListPage(type, keywords) {
+    history.push(`list?type=${type}&keywords=${keywords}`);
+  }
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -110,24 +126,29 @@ export default function Album() {
               爱电影，爱生活
             </Typography>
             <div className={classes.heroButtons}>
-              <Grid container justify="center">
-                <Grid xs={12} sm={12} md={12} justify="center">
-                  <TextField
-                    style={{ width: '100%' }}
-                    id="standard-basic"
-                    label="导演、演员、电影"
-                  />
-                </Grid>
+              <Grid container justify="center" style={{position: 'relative'}}>
+                <TextField value={keywords} onChange={(e) => {
+                  setKeywords(e.target.value)
+                }} style={{ width: '100%' }} id="standard-basic" label="导演、演员、电影" />
+                <IconButton onClick={() => {
+                  gotoListPage('', keywords);
+                }} type="submit" className={classes.searchIconButton} aria-label="search">
+                  <SearchIcon />
+                </IconButton>
               </Grid>
             </div>
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
-          {/* End hero unit */}
           <Grid container spacing={4}>
             {cards.map(card => (
               <Grid item key={card.type} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
+                <Card
+                  className={classes.card}
+                  onClick={() => {
+                    gotoListPage(card.type, '')
+                  }}
+                >
                   <CardMedia
                     className={classes.cardMedia}
                     image={card.cover}

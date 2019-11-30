@@ -1,13 +1,15 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import HomePage from '../pages/home';
+import ListPage from '../pages/list';
 const App = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Switch>
         <Route exact path="/" component={HomePage} />
+        <Route exact path="/list" component={ListPage} />
       </Switch>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
