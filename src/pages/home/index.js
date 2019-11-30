@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { connect } from 'react-redux';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import CameraIcon from '@material-ui/icons/PhotoCamera';
@@ -20,6 +21,8 @@ import TextField from '@material-ui/core/TextField';
 import MaterialLink from '@material-ui/core/Link';
 
 import LocalMovies from '@material-ui/icons/LocalMovies';
+
+import { getRecommendMovieTypeListAction } from '../../ducks/home';
 
 function Copyright() {
   return (
@@ -93,10 +96,27 @@ const cards = [
   },
 ];
 
-export default function Album() {
+export default connect(
+  ({ home }) => {
+    const { recommendMovieTypeList } = home;
+    return {
+      recommendMovieTypeList,
+    };
+  },
+  {
+    getRecommendMovieTypeListAction,
+  },
+)(Album);
+function Album(props) {
   const classes = useStyles();
 
   const history = useHistory();
+
+  //
+  useEffect(() => {
+    console.log(props, 'props');
+    props.getRecommendMovieTypeListAction();
+  }, []);
 
   const [keywords, setKeywords] = useState('');
 
@@ -126,13 +146,25 @@ export default function Album() {
               爱电影，爱生活
             </Typography>
             <div className={classes.heroButtons}>
-              <Grid container justify="center" style={{position: 'relative'}}>
-                <TextField value={keywords} onChange={(e) => {
-                  setKeywords(e.target.value)
-                }} style={{ width: '100%' }} id="standard-basic" label="导演、演员、电影" />
-                <IconButton onClick={() => {
-                  gotoListPage('', keywords);
-                }} type="submit" className={classes.searchIconButton} aria-label="search">
+              <Grid container justify="center" style={{ position: 'relative' }}>
+                <TextField
+                  autoComplete="off"
+                  value={keywords}
+                  onChange={e => {
+                    setKeywords(e.target.value);
+                  }}
+                  style={{ width: '100%' }}
+                  id="standard-basic"
+                  label="导演、演员、电影"
+                />
+                <IconButton
+                  onClick={() => {
+                    gotoListPage('', keywords);
+                  }}
+                  type="submit"
+                  className={classes.searchIconButton}
+                  aria-label="search"
+                >
                   <SearchIcon />
                 </IconButton>
               </Grid>
@@ -146,7 +178,7 @@ export default function Album() {
                 <Card
                   className={classes.card}
                   onClick={() => {
-                    gotoListPage(card.type, '')
+                    gotoListPage(card.type, '');
                   }}
                 >
                   <CardMedia
