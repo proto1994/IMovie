@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { querystring } from '../utils';
-const baseUrl = 'http://192.168.31.220:3000';
-export default function request(url, options = {}) {
-  let params = {},
+const baseUrl = 'http://127.0.0.1:3000';
+export default function request(url, options: any = {}) {
+  let params: any = {},
     method = (options.method || 'get').toLowerCase(),
     data = options.data || {};
   params.url = url;
@@ -13,13 +13,13 @@ export default function request(url, options = {}) {
       params.params = data;
       break;
     case 'post':
-      params.data = querystring.stringify(data);
+      params.data = querystring(data);
       break;
     case 'delete':
       params.params = data;
       break;
     case 'put':
-      params.data = querystring.stringify(data);
+      params.data = querystring(data);
       break;
   }
   let token = window.localStorage.getItem('token');
@@ -32,9 +32,12 @@ export default function request(url, options = {}) {
     .catch(errHandle);
 }
 function errHandle(res) {
-  console.log(res);
+  // console.log(res);
   return;
 }
 function parse(response) {
-  return response;
+  if (response.status == 200) {
+    return response.data;
+  }
+  throw response;
 }

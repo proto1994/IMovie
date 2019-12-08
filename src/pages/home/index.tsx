@@ -12,13 +12,13 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import SearchIcon from '@material-ui/icons/Search';
 import IconButton from '@material-ui/core/IconButton';
-
 import TextField from '@material-ui/core/TextField';
 import MaterialLink from '@material-ui/core/Link';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import LocalMovies from '@material-ui/icons/LocalMovies';
 
@@ -37,7 +37,7 @@ function Copyright() {
   );
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   icon: {
     marginRight: theme.spacing(2),
   },
@@ -75,32 +75,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const cards = [
-  {
-    type: 1,
-    typeName: '热门导演',
-    cover: '/assets/director.jpg',
-    desc: '热爱导演',
-  },
-  {
-    type: 2,
-    typeName: '热门演员',
-    cover: '/assets/actor.jpg',
-    desc: '热爱演员',
-  },
-  {
-    type: 3,
-    typeName: 'IMDB Top 250',
-    cover: '/assets/movie.jpg',
-    desc: '影史电影排行',
-  },
-];
-
 export default connect(
   ({ home }) => {
-    const { recommendMovieTypeList } = home;
+    const { recommendMovieTypeList, loading } = home;
     return {
       recommendMovieTypeList,
+      loading,
     };
   },
   {
@@ -108,13 +88,12 @@ export default connect(
   },
 )(Album);
 function Album(props) {
-  const classes = useStyles();
-
+  console.log(props, 'props');
+  const classes = useStyles({});
   const history = useHistory();
-
   //
   useEffect(() => {
-    console.log(props, 'props');
+    // console.log(props, 'props');
     props.getRecommendMovieTypeListAction();
   }, []);
 
@@ -172,30 +151,36 @@ function Album(props) {
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
-          <Grid container spacing={4}>
-            {cards.map(card => (
-              <Grid item key={card.type} xs={12} sm={6} md={4}>
-                <Card
-                  className={classes.card}
-                  onClick={() => {
-                    gotoListPage(card.type, '');
-                  }}
-                >
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image={card.cover}
-                    title={card.typeName}
-                  />
-                  <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {card.typeName}
-                    </Typography>
-                    <Typography>{card.desc}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          {props.loading ? (
+            <Grid container alignItems="center" justify="center">
+              <CircularProgress />
+            </Grid>
+          ) : (
+            <Grid container spacing={4}>
+              {(props.recommendMovieTypeList || []).map(card => (
+                <Grid item key={card.type} xs={12} sm={6} md={4}>
+                  <Card
+                    className={classes.card}
+                    onClick={() => {
+                      gotoListPage(card.type, '');
+                    }}
+                  >
+                    <CardMedia
+                      className={classes.cardMedia}
+                      image={card.cover}
+                      title={card.typeName}
+                    />
+                    <CardContent className={classes.cardContent}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        {card.typeName}
+                      </Typography>
+                      <Typography>{card.desc}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Container>
       </main>
       {/* Footer */}
